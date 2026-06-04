@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { RouterProvider, useOutletContext, Outlet } from 'react-router-dom';
+import { createBrowserRouter } from '@datadog/browser-rum-react/react-router-v6';
+import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { 
   ShoppingCart, 
   Trash2, 
@@ -24,7 +26,7 @@ interface CartItem {
   quantity: number;
 }
 
-export default function App() {
+export function AppLayout() {
   // --- States ---
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
@@ -162,30 +164,15 @@ export default function App() {
   }, [isCartOpen, isCheckoutOpen]);
 
   return (
-    <BrowserRouter>
-      <div className="app-container">
-        {/* --- SHARED HEADER --- */}
-        <Header 
-          cartTotalItems={cartTotalItems} 
-          onOpenCart={() => setIsCartOpen(true)} 
-        />
+    <div className="app-container">
+      {/* --- SHARED HEADER --- */}
+      <Header 
+        cartTotalItems={cartTotalItems} 
+        onOpenCart={() => setIsCartOpen(true)} 
+      />
 
-        {/* --- PAGE ROUTES --- */}
-        <Routes>
-          <Route 
-            path="/" 
-            element={
-              <Store 
-                cart={cart} 
-                onAddToCart={addToCart} 
-                favorites={favorites} 
-                onToggleFavorite={toggleFavorite} 
-              />
-            } 
-          />
-          <Route path="/clay" element={<AboutClay />} />
-          <Route path="/story" element={<OurStory />} />
-        </Routes>
+      {/* --- PAGE ROUTES --- */}
+      <Outlet context={{ cart, addToCart, favorites, toggleFavorite }} />
 
         {/* --- CART DRAWER OVERLAY --- */}
         <div 
@@ -521,6 +508,147 @@ export default function App() {
         {/* --- SHARED FOOTER --- */}
         <Footer />
       </div>
-    </BrowserRouter>
+  );
+}
+
+// Wrapper for Store to inject layout context props
+function StoreRoute() {
+  const { cart, addToCart, favorites, toggleFavorite } = useOutletContext<{
+    cart: CartItem[];
+    addToCart: (product: Product) => void;
+    favorites: string[];
+    toggleFavorite: (productId: string) => void;
+  }>();
+  
+  return (
+    <Store 
+      cart={cart} 
+      onAddToCart={addToCart} 
+      favorites={favorites} 
+      onToggleFavorite={toggleFavorite} 
+    />
+  );
+}
+
+// Cute clay-themed Error Fallback Component
+function ErrorFallback({ resetError, error }: { resetError: () => void; error: any }) {
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      padding: '2rem',
+      backgroundColor: 'var(--bg-primary, #fbfaf7)',
+      textAlign: 'center'
+    }}>
+      <div style={{
+        backgroundColor: 'var(--bg-secondary, #ffffff)',
+        borderRadius: '24px',
+        padding: '3rem 2rem',
+        maxWidth: '480px',
+        width: '100%',
+        boxShadow: '0 20px 40px rgba(139, 115, 85, 0.08)',
+        border: '1px solid var(--border-color, #efece6)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '1.5rem'
+      }}>
+        <div style={{
+          fontSize: '4rem',
+          filter: 'drop-shadow(0 10px 15px rgba(0, 0, 0, 0.05))',
+        }}>🩹🧸</div>
+        
+        <h1 style={{
+          fontSize: '1.8rem',
+          fontWeight: 800,
+          color: 'var(--text-primary, #2d2621)',
+          margin: 0
+        }}>Barnaby got a bit stuck!</h1>
+        
+        <p style={{
+          fontSize: '0.95rem',
+          color: 'var(--text-secondary, #60524a)',
+          lineHeight: '1.6',
+          margin: 0
+        }}>
+          One of our clay companions took an unexpected spill while baking. Our real-time monitoring (Datadog RUM) has been notified and our studio sculptors are on the case!
+        </p>
+
+        {error && (
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.05)',
+            border: '1px solid rgba(239, 68, 68, 0.15)',
+            borderRadius: '12px',
+            padding: '1rem',
+            width: '100%',
+            textAlign: 'left',
+            maxHeight: '120px',
+            overflowY: 'auto'
+          }}>
+            <code style={{
+              fontSize: '0.8rem',
+              color: '#dc2626',
+              fontFamily: 'monospace',
+              wordBreak: 'break-all',
+              whiteSpace: 'pre-wrap'
+            }}>
+              {error.toString()}
+            </code>
+          </div>
+        )}
+        
+        <button 
+          onClick={resetError} 
+          className="shop-now-btn" 
+          style={{
+            marginTop: '0.5rem',
+            padding: '0.8rem 2rem',
+            borderRadius: '50px',
+            backgroundColor: 'var(--primary, #8e6c4e)',
+            color: '#fff',
+            fontWeight: 600,
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 8px 16px rgba(142, 108, 78, 0.2)'
+          }}
+        >
+          Carefully Re-bake App
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Configure Router with Datadog-integrated Router
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <AppLayout />,
+    children: [
+      {
+        path: '',
+        element: <StoreRoute />
+      },
+      {
+        path: 'clay',
+        element: <AboutClay />
+      },
+      {
+        path: 'story',
+        element: <OurStory />
+      }
+    ]
+  }
+]);
+
+// Main App wrapped with Datadog ErrorBoundary
+export default function App() {
+  return (
+    <ErrorBoundary fallback={ErrorFallback}>
+      <RouterProvider router={router} />
+    </ErrorBoundary>
   );
 }

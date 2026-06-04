@@ -86,14 +86,14 @@ const PRODUCTS = [
   },
   {
     id: 'barnaby',
-    name: 'Barnaby the Pug',
+    name: 'Barnaby the Pug (pair)',
     category: 'companion',
     price: 16.00,
-    description: 'A chubby, wrinkly-faced fawn pug wearing a tiny polymer clay birthday hat. Barnaby features detailed rolls and expressive black-beaded clay eyes.',
+    description: 'A chubby, wrinkly-faced fawn pug wearing a tiny polymer clay birthday hat. Barnaby features detailed rolls and expressive black-beaded clay eyes. NOTE: Barnaby is sold in pairs. Adding one to your cart will actually cause two items to appear in your cart',
     image: '/images/pug.png',
     bgGradient: 'from-emerald-100 to-teal-50',
     borderColor: 'border-emerald-200',
-    tag: 'Limited Edition'
+    tag: 'Paired figurines'
   }
 ];
 
@@ -169,24 +169,24 @@ app.get('/cart', (req, res) => {
 app.post('/cart/add', (req, res) => {
   const { productId } = req.body;
   const product = PRODUCTS.find(p => p.id === productId);
+  const quantity_to_add = 1
   
   if (!product) {
     return res.status(400).send('Invalid product');
   }
 
-  // Special handling for Barnaby the Pug
+  // Special handling for Barnaby the Pug: add TWO items each time
   if (productId === 'barnaby') {
-    throw new Error(`ERROR: ${product.name} cannot be purchased at this time!`);
+    quantity_to_add = 2
   }
-
   
   const cart = getCart(req);
   const existingItem = cart.find(item => item.productId === productId);
   
   if (existingItem) {
-    existingItem.quantity += 1;
+    existingItem.quantity += quantity_to_add;
   } else {
-    cart.push({ productId, quantity: 1 });
+    cart.push({ productId, quantity: quantity_to_add });
   }
   
   console.log(`[Server Cart] Added ${product.name} to cart. Total items: ${cart.reduce((sum, i) => sum + i.quantity, 0)}`);

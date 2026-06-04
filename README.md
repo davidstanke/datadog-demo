@@ -1,32 +1,62 @@
-# Datadog demo app
+# 🐶 Cozy Clay Canines (Server-Side Web Store)
 
-## Headless Traffic Simulation Script
+Welcome to **Cozy Clay Canines**, a fully server-side rendered Node.js web store for adopting adorable, handcrafted clay dog figurines. 
 
-To generate realistic visitor logs and metrics for Datadog Real User Monitoring (RUM), you can run our hands-off user navigation simulator. This script opens a headless browser, navigates the site, visits multiple pages (Store, Our Clay, Our Story), adds a random number of items (1-5) to the cart, and completes a mock checkout using realistic user details.
+This application is built using **Express.js**, **EJS templates**, and **express-session** for completely server-side managed shopping carts and checkout workflows. It is fully responsive and features an elegant, premium **Warm & Cozy Pastel** design system styled using pure vanilla CSS.
 
-### How to Run
+---
 
-1. **Interactive Prompt:**
-   Ask the console how many times to repeat the full sequence:
-   ```bash
-   npm run simulate
-   ```
+## ✨ Features
+1. **Multi-Page Server-Rendered Flow (No SPA)**: Contains true server-side routes and dynamic page generation:
+   - `GET /` (Product Catalog storefront with category filtering).
+   - `GET /product/:id` (Dedicated product detail display with Specifications).
+   - `GET /cart` (Server-side managed adoption cart with real-time quantity adjustments).
+   - `GET /checkout` (Pre-populated checkout form with real-time credit card cardholder syncing).
+   - `GET /success` (Order confirmation showing generated Order ID and receipt).
+2. **Cozy Handcrafted Illustrations**: Adorable clay figures (Corgi, Shiba, Golden, Frenchie, Dachshund, and Pug) are styled and rendered natively using **pure, lightweight, crisp CSS shapes** inside the EJS cards.
+3. **1-Click Adoption Checkout**: In alignment with the `/grill-me` requirements, the checkout form is pre-filled with cozy mock delivery details and credit card info. Users can finalize their adoption transaction with a single click of the "Complete Secure Adoption" button.
+4. **Server-Side State**: All cart and checkout states are securely handled using cookie-backed Express sessions on the Node server.
 
-2. **Direct CLI Parameters (Headless):**
-   Run a specific number of complete loops directly:
-   ```bash
-   npm run simulate -- --iterations 3
-   ```
+---
 
-3. **Headed/Visible Mode:**
-   To watch the automation run in a visible browser window (with actions slowed down for clarity):
-   ```bash
-   npm run simulate -- --iterations 2 --headed
-   ```
+## 🛠️ Tech Stack
+- **Backend Framework**: [Express.js](https://expressjs.com/)
+- **Templating Engine**: [EJS (Embedded JavaScript)](https://ejs.co/)
+- **State/Session Management**: [express-session](https://www.npmjs.com/package/express-session)
+- **Styling**: Vanilla CSS (including pure CSS custom art)
+- **Runtime**: Node.js (ES Modules, `"type": "module"`)
 
-4. **Target a Custom URL:**
-   If your Vite dev server runs on a different port or environment:
-   ```bash
-   npm run simulate -- --iterations 1 --url http://localhost:5173
-   ```
+---
 
+## 🚀 Getting Started
+
+### 1. Prerequisites
+Ensure you have [Node.js](https://nodejs.org/) installed (v18+ recommended).
+
+### 2. Run the Server
+Launch the local Express development server:
+```bash
+npm start
+```
+The server will start running on port `5173`:
+👉 **http://localhost:5173**
+
+---
+
+## 📂 Project Structure
+```text
+.
+├── app.js               # Express server entry point, product catalog, routes, session setup
+├── package.json         # Node scripts & dependencies (EJS, Express, express-session)
+├── public/
+│   └── styles.css       # Cozy pastel design system tokens, layout, forms, and pure-CSS dog arts
+└── views/               # EJS page templates
+    ├── index.ejs        # Product catalog with category filter
+    ├── product.ejs      # Product detail and specification view
+    ├── cart.ejs         # Shopping cart list & summary panel
+    ├── checkout.ejs     # Pre-populated delivery and payment checkout form
+    ├── success.ejs      # Secure order confirmation page
+    └── partials/        # Global layout components
+        ├── header.ejs   # Global head, typography, navigation, live cart count
+        └── footer.ejs   # Global semantic footer details
+```

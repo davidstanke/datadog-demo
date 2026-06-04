@@ -1,0 +1,54 @@
+<%- include('partials/header') %>
+
+<section class="container hero-section">
+  <p class="hero-subtitle">Handcrafted Polymer Clay Companion figurines</p>
+  <h1 class="hero-title">Meet Your Cozy Clay Canines</h1>
+  <p class="hero-description">Adopt adorable, tiny dog companions sculpted with care, baked with warmth, and styled to brighten up any desk, shelf, or cozy nook.</p>
+</section>
+
+<section class="container">
+  <!-- Categories Filter -->
+  <div class="categories-filter">
+    <% categories.forEach(category => { %>
+      <a href="/?category=<%= category %>" class="filter-btn <%= selectedCategory === category ? 'active' : '' %>">
+        <%= category === 'all' ? 'All Puppies' : category.charAt(0).toUpperCase() + category.slice(1) %>
+      </a>
+    <% }); %>
+  </div>
+
+  <!-- Product Grid -->
+  <div class="product-grid">
+    <% products.forEach(product => { %>
+      <div class="product-card">
+        <div class="product-image-container bg-gradient-to-br <%= product.bgGradient %>">
+          <% if (product.tag) { %>
+            <span class="product-badge"><%= product.tag %></span>
+          <% } %>
+          <div class="clay-figure-art">
+            <img src="<%= product.image %>" alt="<%= product.name %>" class="clay-figure-image" loading="lazy">
+          </div>
+        </div>
+        
+        <div class="product-info">
+          <div class="product-meta">
+            <h3 class="product-title"><%= product.name %></h3>
+            <span class="product-price">$<%= product.price.toFixed(2) %></span>
+          </div>
+          <p class="product-desc"><%= product.description %></p>
+          <div class="product-actions">
+            <a href="/product/<%= product.id %>" class="btn btn-secondary">Details</a>
+            <form action="/cart/add" method="POST" style="flex: 1.5; display: flex;">
+              <input type="hidden" name="productId" value="<%= product.id %>">
+              <input type="hidden" name="redirectTo" value="/">
+              <button type="submit" class="btn btn-primary" style="width: 100%;">
+                Adopt Me
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

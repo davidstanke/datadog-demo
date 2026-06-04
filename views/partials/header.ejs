@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cozy Clay Canines | Adorable Handcrafted Clay Dog Figurines</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  
+  <header>
+    <div class="container header-inner">
+      <a href="/" class="logo">
+        <span class="logo-icon">🐶</span>
+        <span>Cozy Clay Canines</span>
+      </a>
+      
+      <nav>
+        <a href="/" class="nav-link <%= currentPath === '/' ? 'active' : '' %>">Store</a>
+        <a href="/cart" class="cart-link-btn">
+          <span>Adoption Cart</span>
+          <span class="cart-badge"><%= cartCount %></span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main>

@@ -1,0 +1,59 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <div class="success-card">
+    
+    <div class="success-icon">🐾</div>
+    <h1 class="success-title">Puppy Adoption Successful!</h1>
+    <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 24px;">
+      Thank you, <strong><%= order.name %></strong>! Your adorable clay dog companions have been officially reserved and are ready for shipment to your cozy home.
+    </p>
+    
+    <!-- Unique Order ID badge -->
+    <div class="order-badge-container">
+      <div class="order-id-badge">
+        Order ID: <%= order.orderId %>
+      </div>
+    </div>
+    
+    <!-- Order Details Breakdown -->
+    <div class="success-details">
+      <h3 style="font-family: var(--font-heading); margin-bottom: 16px; border-bottom: 1px solid var(--border-cozy); padding-bottom: 8px;">Adoption Summary</h3>
+      
+      <div class="success-row">
+        <label>Email Address</label>
+        <span><%= order.email %></span>
+      </div>
+      
+      <div class="success-row">
+        <label>Delivery Location</label>
+        <span><%= order.address %>, <%= order.city %> <%= order.zip %></span>
+      </div>
+      
+      <div class="success-row" style="margin-top: 16px; border-top: 1px dashed var(--border-cozy); padding-top: 12px; margin-bottom: 8px;">
+        <label>Companions Adopted</label>
+        <span>
+          <% order.items.forEach((item, index) => { %>
+            <%= item.product.name.split(' ')[0] %> (x<%= item.quantity %>)<%= index < order.items.length - 1 ? ', ' : '' %>
+          <% }); %>
+        </span>
+      </div>
+      
+      <div class="success-row" style="border-top: 1px solid var(--border-cozy); padding-top: 12px; margin-top: 12px; font-weight: 700;">
+        <label style="color: var(--text-dark); font-weight: 700;">Amount Paid</label>
+        <span style="color: var(--primary-terracotta); font-size: 1.2rem;">$<%= order.total %></span>
+      </div>
+    </div>
+    
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 32px; font-family: var(--font-body);">
+      A tracking confirmation email has been sent to your inbox. Your clay canines will start their journey shortly!
+    </p>
+    
+    <a href="/" class="btn btn-primary" style="display: inline-flex; width: auto; padding: 14px 40px; font-size: 1.1rem; border-radius: var(--radius-md);">
+      Return to Canine Catalog
+    </a>
+    
+  </div>
+</div>
+
+<%- include('partials/footer') %>

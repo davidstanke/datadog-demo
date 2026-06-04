@@ -1,0 +1,53 @@
+<%- include('partials/header') %>
+
+<div class="container" style="padding-top: 32px;">
+  <a href="/" class="nav-link" style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 24px;">
+    ← Back to Puppy Catalog
+  </a>
+
+  <div class="product-detail-layout">
+    
+    <!-- Detail Visual Representation -->
+    <div class="detail-visual bg-gradient-to-br <%= product.bgGradient %>">
+      <div class="clay-figure-art">
+        <img src="<%= product.image %>" alt="<%= product.name %>" class="clay-figure-image">
+      </div>
+    </div>
+
+    <!-- Detail Information -->
+    <div class="detail-info">
+      <span class="category"><%= product.category %> breed</span>
+      <h1><%= product.name %></h1>
+      <div class="detail-price">$<%= product.price.toFixed(2) %></div>
+      <p class="detail-desc"><%= product.description %></p>
+      
+      <!-- Specifications / Attributes -->
+      <div class="detail-attributes">
+        <div class="attr-pill">
+          <span class="attr-label">Size</span>
+          <span class="attr-value">~ 2.2" tall</span>
+        </div>
+        <div class="attr-pill">
+          <span class="attr-label">Material</span>
+          <span class="attr-value">Polymer Clay</span>
+        </div>
+        <div class="attr-pill">
+          <span class="attr-label">Crafting Time</span>
+          <span class="attr-value">4.5 hours</span>
+        </div>
+      </div>
+
+      <!-- Add to Cart -->
+      <form action="/cart/add" method="POST">
+        <input type="hidden" name="productId" value="<%= product.id %>">
+        <input type="hidden" name="redirectTo" value="/cart">
+        <button type="submit" class="btn btn-primary" style="padding: 16px 32px; font-size: 1.1rem; border-radius: var(--radius-md); width: 100%; justify-content: center;">
+          Adopt <%= product.name.split(' ')[0] %>
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<%- include('partials/footer') %>

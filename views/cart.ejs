@@ -1,0 +1,109 @@
+<%- include('partials/header') %>
+
+<div class="container">
+  <div class="cart-layout">
+    
+    <!-- Left: Cart Items List -->
+    <div class="cart-items-container">
+      <h2 class="cart-title">
+        <span>🛒</span> Your Adoption Cart
+      </h2>
+      
+      <% if (cartItems.length === 0) { %>
+        <div class="empty-cart-state">
+          <div class="empty-cart-icon">🐾</div>
+          <h3 style="margin-bottom: 8px;">Your cart is empty</h3>
+          <p style="color: var(--text-muted); margin-bottom: 24px;">There are no tiny clay puppies in your cart yet.</p>
+          <a href="/" class="btn btn-primary" style="display: inline-flex; width: auto; padding: 12px 32px;">Browse Clay Puppies</a>
+        </div>
+      <% } else { %>
+        <% cartItems.forEach(item => { %>
+          <div class="cart-item">
+            <div class="cart-item-image bg-gradient-to-br <%= item.product.bgGradient %>">
+              <div class="clay-figure-art">
+                <img src="<%= item.product.image %>" alt="<%= item.product.name %>" class="clay-figure-image" loading="lazy">
+              </div>
+            </div>
+            
+            <div class="cart-item-info">
+              <h3><%= item.product.name %></h3>
+              <p><%= item.product.category %> breed</p>
+              
+              <!-- Remove Link Form -->
+              <form action="/cart/update" method="POST" style="margin-top: 8px;">
+                <input type="hidden" name="productId" value="<%= item.product.id %>">
+                <input type="hidden" name="action" value="remove">
+                <button type="submit" style="color: var(--primary-terracotta); font-size: 0.85rem; font-weight: 600; font-family: var(--font-body);">
+                  Remove companion
+                </button>
+              </form>
+            </div>
+            
+            <div class="quantity-controls">
+              <!-- Decrease Form -->
+              <form action="/cart/update" method="POST">
+                <input type="hidden" name="productId" value="<%= item.product.id %>">
+                <input type="hidden" name="action" value="decrease">
+                <button type="submit" class="qty-btn" aria-label="Decrease quantity">−</button>
+              </form>
+              
+              <span class="qty-val"><%= item.quantity %></span>
+              
+              <!-- Increase Form -->
+              <form action="/cart/update" method="POST">
+                <input type="hidden" name="productId" value="<%= item.product.id %>">
+                <input type="hidden" name="action" value="increase">
+                <button type="submit" class="qty-btn" aria-label="Increase quantity">+</button>
+              </form>
+            </div>
+            
+            <div class="cart-item-price">
+              $<%= (item.product.price * item.quantity).toFixed(2) %>
+            </div>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+    
+    <!-- Right: Summary Sidebar -->
+    <% if (cartItems.length > 0) { %>
+      <div class="cart-summary-container">
+        <h3 class="summary-title">Order Summary</h3>
+        
+        <div class="summary-row">
+          <span>Adoption Subtotal</span>
+          <span style="font-weight: 600; color: var(--text-dark);">$<%= subtotal.toFixed(2) %></span>
+        </div>
+        
+        <div class="summary-row">
+          <span>Courier Shipping</span>
+          <span style="font-weight: 600; color: var(--text-dark);">
+            <%= shipping === 0 ? 'FREE' : '$' + shipping.toFixed(2) %>
+          </span>
+        </div>
+        
+        <% if (shipping > 0) { %>
+          <div class="shipping-hint">
+            🐾 Add <strong>$<%= (35 - subtotal).toFixed(2) %></strong> more for FREE shipping!
+          </div>
+        <% } else { %>
+          <div class="shipping-hint" style="background-color: var(--accent-moss-light); color: var(--accent-moss);">
+            🎉 Congratulations! Your order qualifies for free courier shipping.
+          </div>
+        <% } %>
+        
+        <div class="summary-row total">
+          <span>Grand Total</span>
+          <span>$<%= total.toFixed(2) %></span>
+        </div>
+        
+        <a href="/checkout" class="btn btn-primary" style="width: 100%; padding: 16px; font-size: 1.1rem; border-radius: var(--radius-md); margin-top: 24px; justify-content: center;">
+          Proceed to Checkout 🔒
+        </a>
+      </div>
+    <% } %>
+    
+  </div>
+</div>
+
+<%- include('partials/footer') %>

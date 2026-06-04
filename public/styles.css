@@ -1,0 +1,1303 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap');
+
+/* --- DESIGN SYSTEM TOKENS --- */
+:root {
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Colors */
+  --bg-cozy: #FAF6F0;
+  --bg-surface: #FFFFFF;
+  --bg-card: #FDFBF7;
+  --primary-terracotta: #D97D64;
+  --primary-hover: #C36A53;
+  --accent-moss: #6E8268;
+  --accent-moss-light: #EBF0EC;
+  --text-dark: #3E3835;
+  --text-muted: #7D736E;
+  --border-cozy: #EFE6DE;
+  --shadow-clay: 0 10px 25px -5px rgba(217, 125, 100, 0.1);
+  --shadow-hover: 0 20px 30px -5px rgba(217, 125, 100, 0.18);
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  
+  --transition-cozy: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- RESET & GLOBAL STYLES --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-cozy);
+  color: var(--text-dark);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button, .btn {
+  font-family: var(--font-heading);
+  cursor: pointer;
+  border: none;
+  background: none;
+  outline: none;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  color: var(--text-dark);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* --- UTILITY CLASSES --- */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* --- STICKY HEADER --- */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: rgba(250, 246, 240, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-cozy);
+  padding: 16px 0;
+  transition: var(--transition-cozy);
+}
+
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.4rem;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  color: var(--primary-terracotta);
+}
+
+.logo-icon {
+  font-size: 1.8rem;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.nav-link {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-muted);
+  transition: var(--transition-cozy);
+  position: relative;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--primary-terracotta);
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: var(--primary-terracotta);
+  transition: var(--transition-cozy);
+}
+
+.nav-link:hover::after, .nav-link.active::after {
+  width: 100%;
+}
+
+.cart-link-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--primary-terracotta);
+  color: #FFF;
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-weight: 600;
+  box-shadow: var(--shadow-clay);
+  transition: var(--transition-cozy);
+}
+
+.cart-link-btn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.cart-badge {
+  background-color: #FFF;
+  color: var(--primary-terracotta);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+/* --- HERO SECTION --- */
+.hero-section {
+  text-align: center;
+  padding: 64px 0 40px;
+}
+
+.hero-subtitle {
+  color: var(--primary-terracotta);
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  font-family: var(--font-heading);
+}
+
+.hero-title {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  color: var(--text-dark);
+}
+
+.hero-description {
+  max-width: 600px;
+  margin: 0 auto 32px;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+/* --- FILTER CATEGORIES --- */
+.categories-filter {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 48px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-cozy);
+  padding: 10px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: var(--transition-cozy);
+}
+
+.filter-btn:hover, .filter-btn.active {
+  background-color: var(--accent-moss-light);
+  color: var(--accent-moss);
+  border-color: var(--accent-moss);
+}
+
+/* --- PRODUCT GRID --- */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 32px;
+  margin-bottom: 80px;
+}
+
+.product-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-cozy);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-clay);
+  transition: var(--transition-cozy);
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-hover);
+}
+
+.product-image-container {
+  height: 280px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.product-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background-color: var(--primary-terracotta);
+  color: white;
+  padding: 6px 14px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.8rem;
+  border-radius: 50px;
+  z-index: 5;
+}
+
+/* Beautiful clay miniature art using photo-realistic images */
+.clay-figure-art {
+  width: 140px;
+  height: 140px;
+  position: relative;
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.12));
+  transition: var(--transition-cozy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clay-figure-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.product-card:hover .clay-figure-art {
+  transform: scale(1.08) rotate(3deg);
+}
+
+.product-info {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.product-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.product-title {
+  font-size: 1.3rem;
+  color: var(--text-dark);
+}
+
+.product-price {
+  font-size: 1.3rem;
+  font-family: var(--font-heading);
+  color: var(--primary-terracotta);
+  font-weight: 700;
+}
+
+.product-desc {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 24px;
+  flex-grow: 1;
+}
+
+.product-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-secondary {
+  flex: 1;
+  background-color: transparent;
+  border: 1px solid var(--border-cozy);
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  text-align: center;
+  transition: var(--transition-cozy);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-cozy);
+  color: var(--text-dark);
+  border-color: var(--text-muted);
+}
+
+.btn-primary {
+  flex: 1.5;
+  background-color: var(--primary-terracotta);
+  color: white;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  text-align: center;
+  box-shadow: var(--shadow-clay);
+  transition: var(--transition-cozy);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* --- PRODUCT DETAIL PAGE --- */
+.product-detail-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 64px;
+  padding: 48px 0 80px;
+  align-items: center;
+}
+
+.detail-visual {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-cozy);
+  border-radius: var(--radius-lg);
+  padding: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-clay);
+}
+
+.detail-visual .clay-figure-art {
+  width: 240px;
+  height: 240px;
+}
+
+.detail-info .category {
+  color: var(--accent-moss);
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.detail-info h1 {
+  font-size: 2.8rem;
+  margin-bottom: 16px;
+}
+
+.detail-price {
+  font-size: 2rem;
+  font-family: var(--font-heading);
+  color: var(--primary-terracotta);
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.detail-desc {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+  line-height: 1.8;
+}
+
+.detail-attributes {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.attr-pill {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-cozy);
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.attr-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.attr-value {
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--text-dark);
+}
+
+/* --- CART PAGE --- */
+.cart-layout {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 48px;
+  padding: 48px 0 80px;
+}
+
+.cart-items-container {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-cozy);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-clay);
+}
+
+.cart-title {
+  margin-bottom: 32px;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cart-item {
+  display: grid;
+  grid-template-columns: 80px 1fr auto auto;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border-cozy);
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+.cart-item-image {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
+}
+
+.cart-item-image .clay-figure-art {
+  width: 60px;
+  height: 60px;
+}
+
+.cart-item-info h3 {
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.cart-item-info p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--bg-cozy);
+  border-radius: 50px;
+  padding: 6px 12px;
+}
+
+.qty-btn {
+  background: white;
+  border: 1px solid var(--border-cozy);
+  color: var(--text-dark);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: var(--transition-cozy);
+}
+
+.qty-btn:hover {
+  background-color: var(--primary-terracotta);
+  color: white;
+  border-color: var(--primary-terracotta);
+}
+
+.qty-val {
+  font-weight: 700;
+  font-size: 1rem;
+  min-width: 20px;
+  text-align: center;
+}
+
+.cart-item-price {
+  font-size: 1.2rem;
+  font-family: var(--font-heading);
+  color: var(--primary-terracotta);
+  font-weight: 700;
+  min-width: 80px;
+  text-align: right;
+}
+
+.empty-cart-state {
+  text-align: center;
+  padding: 64px 0;
+}
+
+.empty-cart-icon {
+  font-size: 4rem;
+  margin-bottom: 24px;
+}
+
+/* --- CART SUMMARY --- */
+.cart-summary-container {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-cozy);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-clay);
+  align-self: flex-start;
+}
+
+.summary-title {
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-cozy);
+  padding-bottom: 16px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  color: var(--text-muted);
+}
+
+.summary-row.total {
+  font-family: var(--font-heading);
+  color: var(--text-dark);
+  font-weight: 800;
+  font-size: 1.4rem;
+  border-top: 1px solid var(--border-cozy);
+  padding-top: 16px;
+  margin-top: 16px;
+}
+
+.shipping-hint {
+  background-color: var(--accent-moss-light);
+  color: var(--accent-moss);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+/* --- CHECKOUT PAGE --- */
+.checkout-layout {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 48px;
+  padding: 48px 0 80px;
+}
+
+.checkout-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-cozy);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-clay);
+}
+
+.form-section-title {
+  font-size: 1.4rem;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-cozy);
+  padding-bottom: 12px;
+}
+
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.checkout-grid.full-width, .form-group.full-width {
+  grid-column: span 2;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.form-group input {
+  font-family: var(--font-body);
+  border: 1px solid var(--border-cozy);
+  background-color: var(--bg-cozy);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  color: var(--text-dark);
+  transition: var(--transition-cozy);
+}
+
+.form-group input:focus {
+  outline: none;
+  background-color: #FFF;
+  border-color: var(--primary-terracotta);
+  box-shadow: 0 0 0 3px rgba(217, 125, 100, 0.15);
+}
+
+/* --- CREDIT CARD DISPLAY --- */
+.visual-card-face {
+  background: linear-gradient(135deg, #D97D64 0%, #C36A53 100%);
+  color: white;
+  padding: 24px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+  box-shadow: 0 10px 20px rgba(195, 106, 83, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 180px;
+  position: relative;
+  overflow: hidden;
+}
+
+.visual-card-face::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -20%;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-chip {
+  width: 40px;
+  height: 30px;
+  background: linear-gradient(135deg, #F3D2C1 0%, #E9A382 100%);
+  border-radius: 6px;
+}
+
+.card-brand {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+}
+
+.card-number-display {
+  font-size: 1.35rem;
+  font-family: monospace;
+  letter-spacing: 2px;
+  margin: 16px 0;
+}
+
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-holder, .card-expiry {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 1px;
+}
+
+.card-value {
+  font-size: 0.9rem;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* --- CHECKOUT SIDEBAR --- */
+.checkout-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.checkout-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.95rem;
+}
+
+.checkout-item-name {
+  font-weight: 500;
+}
+
+.checkout-item-qty {
+  color: var(--text-muted);
+}
+
+/* --- SUCCESS PAGE --- */
+.success-card {
+  max-width: 600px;
+  margin: 64px auto 100px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-cozy);
+  border-radius: var(--radius-lg);
+  padding: 48px;
+  text-align: center;
+  box-shadow: var(--shadow-clay);
+}
+
+.success-icon {
+  font-size: 5rem;
+  color: var(--accent-moss);
+  margin-bottom: 24px;
+  animation: float-slow 4s ease-in-out infinite;
+}
+
+.success-title {
+  font-size: 2.2rem;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+}
+
+.order-badge-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.order-id-badge {
+  background-color: var(--accent-moss-light);
+  color: var(--accent-moss);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 8px 24px;
+  border-radius: 50px;
+}
+
+.success-details {
+  border-top: 1px solid var(--border-cozy);
+  border-bottom: 1px solid var(--border-cozy);
+  padding: 24px 0;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.success-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.success-row:last-child {
+  margin-bottom: 0;
+}
+
+.success-row label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.success-row span {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* --- FOOTER --- */
+footer {
+  border-top: 1px solid var(--border-cozy);
+  background-color: var(--bg-surface);
+  padding: 48px 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+/* --- ADORABLE PURE CSS CLAY FIGURINE DOG ILLUSTRATIONS --- */
+/* (Corgi, Shiba, Golden, Frenchie, Dachshund, Pug) */
+
+/* 1. Cooper the Corgi */
+.clay-corgi {
+  background: #E89E5F;
+  border-radius: 40px;
+  position: relative;
+  width: 100px;
+  height: 85px;
+  top: 15px;
+}
+.clay-corgi .corgi-ear-l, .clay-corgi .corgi-ear-r {
+  position: absolute;
+  width: 25px;
+  height: 40px;
+  background: #E89E5F;
+  border-radius: 50% 50% 10px 10px;
+  top: -25px;
+}
+.clay-corgi .corgi-ear-l { left: 15px; transform: rotate(-10deg); }
+.clay-corgi .corgi-ear-r { right: 15px; transform: rotate(10deg); }
+.clay-corgi .corgi-ear-l::after, .clay-corgi .corgi-ear-r::after {
+  content: '';
+  position: absolute;
+  width: 13px;
+  height: 25px;
+  background: #F8C3B1;
+  border-radius: 50% 50% 10px 10px;
+  top: 10px;
+  left: 6px;
+}
+.clay-corgi .corgi-face-white {
+  position: absolute;
+  width: 70px;
+  height: 50px;
+  background: #FFF;
+  border-radius: 50% 50% 25px 25px;
+  bottom: 0;
+  left: 15px;
+}
+.clay-corgi .corgi-nose-stripe {
+  position: absolute;
+  width: 14px;
+  height: 45px;
+  background: #FFF;
+  bottom: 30px;
+  left: 43px;
+  border-radius: 7px;
+}
+.clay-corgi .corgi-eye-l, .clay-corgi .corgi-eye-r {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #2C2523;
+  border-radius: 50%;
+  top: 30px;
+  z-index: 5;
+}
+.clay-corgi .corgi-eye-l { left: 30px; }
+.clay-corgi .corgi-eye-r { right: 30px; }
+.clay-corgi .corgi-nose {
+  position: absolute;
+  width: 12px;
+  height: 8px;
+  background: #2C2523;
+  border-radius: 6px 6px 3px 3px;
+  top: 44px;
+  left: 44px;
+  z-index: 5;
+}
+.clay-corgi .corgi-scarf {
+  position: absolute;
+  width: 106px;
+  height: 12px;
+  background: #D94B4B;
+  border-radius: 6px;
+  bottom: -4px;
+  left: -3px;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* 2. Hachi the Shiba Inu */
+.clay-shiba {
+  background: #E48D4E;
+  border-radius: 40px;
+  position: relative;
+  width: 95px;
+  height: 90px;
+  top: 15px;
+}
+.clay-shiba .shiba-ear-l, .clay-shiba .shiba-ear-r {
+  position: absolute;
+  width: 22px;
+  height: 32px;
+  background: #E48D4E;
+  border-radius: 50% 50% 5px 5px;
+  top: -18px;
+}
+.clay-shiba .shiba-ear-l { left: 12px; transform: rotate(-15deg); }
+.clay-shiba .shiba-ear-r { right: 12px; transform: rotate(15deg); }
+.clay-shiba .shiba-ear-l::after, .clay-shiba .shiba-ear-r::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 20px;
+  background: #F1DEC9;
+  border-radius: 50% 50% 5px 5px;
+  top: 8px;
+  left: 5px;
+}
+.clay-shiba .shiba-cheeks {
+  position: absolute;
+  width: 80px;
+  height: 48px;
+  background: #FFF;
+  border-radius: 50% 50% 30px 30px;
+  bottom: 4px;
+  left: 7.5px;
+}
+.clay-shiba .shiba-eye-l, .clay-shiba .shiba-eye-r {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #322A28;
+  border-radius: 50%;
+  top: 36px;
+  z-index: 5;
+}
+.clay-shiba .shiba-eye-l { left: 26px; }
+.clay-shiba .shiba-eye-r { right: 26px; }
+.clay-shiba .shiba-nose {
+  position: absolute;
+  width: 12px;
+  height: 8px;
+  background: #322A28;
+  border-radius: 6px;
+  top: 48px;
+  left: 41.5px;
+  z-index: 5;
+}
+.clay-shiba .shiba-collar {
+  position: absolute;
+  width: 70px;
+  height: 10px;
+  background: #53755C;
+  border-radius: 5px;
+  bottom: -3px;
+  left: 12.5px;
+  z-index: 10;
+}
+
+/* 3. Bella the Golden Retriever */
+.clay-golden {
+  background: #ECC380;
+  border-radius: 45px;
+  position: relative;
+  width: 100px;
+  height: 90px;
+  top: 15px;
+}
+.clay-golden .golden-ear-l, .clay-golden .golden-ear-r {
+  position: absolute;
+  width: 25px;
+  height: 52px;
+  background: #DFB26E;
+  border-radius: 10px 10px 15px 15px;
+  top: 10px;
+  z-index: 4;
+}
+.clay-golden .golden-ear-l { left: -8px; transform: rotate(15deg); }
+.clay-golden .golden-ear-r { right: -8px; transform: rotate(-15deg); }
+.clay-golden .golden-snout {
+  position: absolute;
+  width: 45px;
+  height: 35px;
+  background: #FFF;
+  border-radius: 18px;
+  bottom: 12px;
+  left: 27.5px;
+  z-index: 5;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.clay-golden .golden-eye-l, .clay-golden .golden-eye-r {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #251F1C;
+  border-radius: 50%;
+  top: 36px;
+  z-index: 6;
+}
+.clay-golden .golden-eye-l { left: 30px; }
+.clay-golden .golden-eye-r { right: 30px; }
+.clay-golden .golden-nose {
+  position: absolute;
+  width: 14px;
+  height: 10px;
+  background: #251F1C;
+  border-radius: 6px;
+  top: 42px;
+  left: 43px;
+  z-index: 6;
+}
+
+/* 4. Pierre the French Bulldog */
+.clay-frenchie {
+  background: #4E4C4B;
+  border-radius: 35px;
+  position: relative;
+  width: 90px;
+  height: 85px;
+  top: 15px;
+}
+.clay-frenchie .frenchie-ear-l, .clay-frenchie .frenchie-ear-r {
+  position: absolute;
+  width: 26px;
+  height: 48px;
+  background: #4E4C4B;
+  border-radius: 50% 50% 12px 12px;
+  top: -30px;
+}
+.clay-frenchie .frenchie-ear-l { left: 4px; transform: rotate(-12deg); }
+.clay-frenchie .frenchie-ear-r { right: 4px; transform: rotate(12deg); }
+.clay-frenchie .frenchie-ear-l::after, .clay-frenchie .frenchie-ear-r::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 36px;
+  background: #EFA6A4;
+  border-radius: 50% 50% 6px 6px;
+  top: 6px;
+  left: 6px;
+}
+.clay-frenchie .frenchie-patch {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  background: #FFF;
+  border-radius: 50%;
+  top: 15px;
+  left: 14px;
+  z-index: 2;
+}
+.clay-frenchie .frenchie-eye-l, .clay-frenchie .frenchie-eye-r {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #111;
+  border-radius: 50%;
+  top: 34px;
+  z-index: 5;
+}
+.clay-frenchie .frenchie-eye-l { left: 24px; }
+.clay-frenchie .frenchie-eye-r { right: 24px; }
+.clay-frenchie .frenchie-snout {
+  position: absolute;
+  width: 38px;
+  height: 26px;
+  background: #252424;
+  border-radius: 12px;
+  bottom: 15px;
+  left: 26px;
+  z-index: 4;
+}
+.clay-frenchie .frenchie-nose {
+  position: absolute;
+  width: 12px;
+  height: 8px;
+  background: #111;
+  border-radius: 4px;
+  top: 48px;
+  left: 39px;
+  z-index: 5;
+}
+
+/* 5. Dash the Dachshund */
+.clay-dachshund {
+  background: #613C2F;
+  border-radius: 20px 45px 45px 20px;
+  position: relative;
+  width: 110px;
+  height: 65px;
+  top: 25px;
+}
+.clay-dachshund .doxie-ear-l, .clay-dachshund .doxie-ear-r {
+  position: absolute;
+  width: 20px;
+  height: 48px;
+  background: #503126;
+  border-radius: 8px 8px 12px 12px;
+  top: 8px;
+  z-index: 4;
+}
+.clay-dachshund .doxie-ear-l { left: 32px; transform: rotate(5deg); }
+.clay-dachshund .doxie-ear-r { right: 6px; transform: rotate(-5deg); }
+.clay-dachshund .doxie-snout {
+  position: absolute;
+  width: 40px;
+  height: 22px;
+  background: #613C2F;
+  border-radius: 10px 20px 20px 10px;
+  top: 22px;
+  left: -20px;
+  z-index: 2;
+}
+.clay-dachshund .doxie-eye-l, .clay-dachshund .doxie-eye-r {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: #1C1210;
+  border-radius: 50%;
+  top: 18px;
+  z-index: 5;
+}
+.clay-dachshund .doxie-eye-l { left: 24px; }
+.clay-dachshund .doxie-eye-r { left: 44px; }
+.clay-dachshund .doxie-nose {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background: #1C1210;
+  border-radius: 50%;
+  top: 26px;
+  left: -22px;
+  z-index: 5;
+}
+
+/* 6. Barnaby the Pug */
+.clay-pug {
+  background: #DFC5A0;
+  border-radius: 40px;
+  position: relative;
+  width: 95px;
+  height: 85px;
+  top: 15px;
+}
+.clay-pug .pug-ear-l, .clay-pug .pug-ear-r {
+  position: absolute;
+  width: 20px;
+  height: 28px;
+  background: #4E4038;
+  border-radius: 50% 50% 10px 10px;
+  top: -6px;
+}
+.clay-pug .pug-ear-l { left: 4px; transform: rotate(-35deg); }
+.clay-pug .pug-ear-r { right: 4px; transform: rotate(35deg); }
+.clay-pug .pug-mask {
+  position: absolute;
+  width: 48px;
+  height: 38px;
+  background: #4E4038;
+  border-radius: 20px;
+  bottom: 12px;
+  left: 23.5px;
+  z-index: 3;
+}
+.clay-pug .pug-eye-l, .clay-pug .pug-eye-r {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #000;
+  border-radius: 50%;
+  top: 30px;
+  z-index: 5;
+}
+.clay-pug .pug-eye-l { left: 20px; }
+.clay-pug .pug-eye-r { right: 20px; }
+.clay-pug .pug-eye-l::after, .clay-pug .pug-eye-r::after {
+  content: '';
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: white;
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+}
+.clay-pug .pug-nose {
+  position: absolute;
+  width: 12px;
+  height: 8px;
+  background: #111;
+  border-radius: 6px;
+  top: 48px;
+  left: 41.5px;
+  z-index: 5;
+}
+.clay-pug .pug-hat {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 25px solid #6EA4AD;
+  top: -22px;
+  left: 32.5px;
+  z-index: 10;
+}
+.clay-pug .pug-hat::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #FFF;
+  border-radius: 50%;
+  top: 20px;
+  left: -4px;
+}
+
+/* Animations */
+@keyframes float-slow {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* --- RESPONSIVE MEDIA QUERIES --- */
+@media (max-width: 900px) {
+  .product-detail-layout, .cart-layout, .checkout-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .detail-visual {
+    padding: 32px;
+  }
+}

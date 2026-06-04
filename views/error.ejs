@@ -1,0 +1,39 @@
+<%- include('partials/header') %>
+
+<div class="container" style="padding-top: 80px; padding-bottom: 80px; text-align: center;">
+  <div class="error-card" style="background: var(--bg-surface); border: 1px solid var(--border-cozy); padding: 48px; border-radius: var(--radius-lg); box-shadow: var(--shadow-clay); max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 24px;">
+    
+    <div class="error-emoji" style="font-size: 5rem; line-height: 1; animation: float 3s ease-in-out infinite;">😢</div>
+    
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <h1 style="font-size: 2.2rem; color: var(--primary-terracotta); font-family: var(--font-heading); font-weight: 800; margin: 0;">Oops!</h1>
+      <p style="color: var(--text-dark); font-size: 1.15rem; font-weight: 500; margin: 0; line-height: 1.4;">
+        <%= message %>
+      </p>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin: 8px 0 0 0; line-height: 1.5;">
+        Barnaby is taking a long nap and can't be adopted right now. Please select another puppy or try again later!
+      </p>
+    </div>
+
+    <div style="margin-top: 8px; width: 100%;">
+      <a href="/" class="btn-primary-custom" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; font-size: 1.05rem; border-radius: var(--radius-md); width: 100%; box-sizing: border-box; background-color: var(--primary-terracotta); color: white; text-decoration: none; font-family: var(--font-heading); font-weight: 600; border: none; cursor: pointer; transition: var(--transition-cozy); box-shadow: 0 4px 12px rgba(217, 125, 100, 0.15);">
+        🐶 Back to Puppy Catalog
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0px); }
+  }
+  .btn-primary-custom:hover {
+    background-color: var(--primary-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(217, 125, 100, 0.25) !important;
+  }
+</style>
+
+<%- include('partials/footer') %>

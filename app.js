@@ -172,6 +172,12 @@ app.post('/cart/add', (req, res) => {
   if (!product) {
     return res.status(400).send('Invalid product');
   }
+
+  // Deliberate exception for Barnaby the Pug
+  if (productId === 'barnaby') {
+    throw new Error(`Adoption failed: Deliberate server-side exception triggered while attempting to adopt ${product.name}!`);
+  }
+
   
   const cart = getCart(req);
   const existingItem = cart.find(item => item.productId === productId);
@@ -297,6 +303,14 @@ app.get('/success', (req, res) => {
     return res.redirect('/');
   }
   res.render('success', { order: lastOrder });
+});
+
+// Global Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error('[Cozy Clay Canines Error Log]:', err.stack || err);
+  res.status(500).render('error', { 
+    message: 'Oops! Something went wrong. Try again later!' 
+  });
 });
 
 // Start the server

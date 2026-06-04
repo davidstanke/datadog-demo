@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "datadog": {
+       "httpUrl": "https://mcp.us5.datadoghq.com/api/unstable/mcp-server/mcp"
+     }
+  }
+}

@@ -43,6 +43,41 @@ The server will start running on port `5173`:
 
 ---
 
+## 🔄 Purchase Simulator
+
+This project contains a high-fidelity automated user simulation script written in Node.js using **Playwright** (`playwright-chromium`). It simulates realistic storefront visits, random breed selections, adding items to the cart, modifying quantities, recovering from catalog errors, and completing successful adoption checkout sequences.
+
+This is ideal for generating real-time log, metric, and tracing data in **Datadog**!
+
+### 1. Install Simulator OS Dependencies
+Since the simulator runs a headless browser, ensure your Linux system has the necessary browser dependencies installed. You can install all required libraries automatically with a single command:
+```bash
+npx playwright install-deps
+```
+
+### 2. Run the Simulation
+Make sure your Cozy Clay Canines server is running (either locally or inside your Docker container), then execute the simulator:
+```bash
+npm run simulate
+```
+
+### 3. Optional Parameters
+- **Set Loop Count:** Control how many full purchase flows to run (defaults to `3`):
+  ```bash
+  npm run simulate -- 5
+  # Or explicitly:
+  npm run simulate -- --iterations=5
+  ```
+- **Headed (Visible) Mode:** If you are running locally and want to watch the browser execute the actions in a visible window:
+  ```bash
+  npm run simulate -- --headed
+  ```
+- **Target Server URL:** Upon execution, the CLI will prompt you for the target server URL (defaulting to `http://localhost:8080`). Just press **Enter** to use the default.
+  > [!TIP]
+  > When running the simulator inside a cloud IDE environment (like Google Cloud Workstations), always use `http://localhost:8080` instead of the external proxy URL to bypass Identity-Aware Proxy (IAP) auth gates.
+
+---
+
 ## 📂 Project Structure
 ```text
 .

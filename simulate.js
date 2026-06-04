@@ -1,9 +1,8 @@
-import puppeteer from 'puppeteer';
-import net from 'net';
-import { spawn } from 'child_process';
+import { chromium } from 'playwright-chromium';
+import readline from 'readline/promises';
+import { stdin as input, stdout as output } from 'process';
 
-const PORT = 5173;
-const BASE_URL = `http://localhost:${PORT}`;
+let BASE_URL = 'http://localhost:8080';
 const ALL_PRODUCTS = ['cooper', 'hachi', 'bella', 'pierre', 'dash', 'barnaby'];
 
 // ANSI escape codes for beautiful styling
@@ -15,78 +14,39 @@ const C_YELLOW = '\x1b[33m';
 const C_CYAN = '\x1b[36m';
 const C_MAGENTA = '\x1b[35m';
 
-function isPortInUse(port) {
-  return new Promise((resolve) => {
-    const server = net.createServer()
-      .once('error', (err) => {
-        if (err.code === 'EADDRINUSE') {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
-      })
-      .once('listening', () => {
-        server.close();
-        resolve(false);
-      })
-      .listen(port);
-  });
-}
-
-let serverProcess = null;
-
-async function ensureServer() {
-  const inUse = await isPortInUse(PORT);
-  if (inUse) {
-    console.log(`${C_GREEN}✅ Server is already running on port ${PORT}.${C_RESET}`);
-    return false; // did not spin up programmatically
-  }
-
-  console.log(`${C_YELLOW}🚀 Starting Cozy Clay Canines server programmatically...${C_RESET}`);
-  serverProcess = spawn('npm', ['run', 'dev'], {
-    stdio: 'inherit',
-    shell: true,
-  });
-
-  // Poll port 5173 to check if it's active
-  let attempts = 0;
-  while (attempts < 20) {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    if (await isPortInUse(PORT)) {
-      console.log(`${C_GREEN}✅ Server successfully started and is listening on port ${PORT}!${C_RESET}`);
-      return true; // programmatically spun up
-    }
-    attempts++;
-  }
-  throw new Error('Failed to start Cozy Clay Canines server in a reasonable time.');
-}
-
-function cleanupServer(spunUp) {
-  if (spunUp && serverProcess) {
-    console.log(`\n${C_YELLOW}🛑 Shutting down programmatically started server...${C_RESET}`);
-    serverProcess.kill('SIGTERM');
+async function checkServerRunning(url) {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    return res.status < 500; // Returns true if server returns a successful status code or non-server-error
+  } catch (err) {
+    return false;
   }
 }
 
-async function runSimulation(iteration, total) {
+async function runSimulation(iteration, total, headless) {
   console.log(`\n${C_MAGENTA}====================================================${C_RESET}`);
   console.log(`${C_MAGENTA}${C_BRIGHT}🔄 RUNNING SIMULATION ITERATION: ${iteration} / ${total}${C_RESET}`);
   console.log(`${C_MAGENTA}====================================================${C_RESET}`);
 
-  const browser = await puppeteer.launch({
-    headless: 'new',
+  // Launch browser using playwright-chromium
+  const browser = await chromium.launch({
+    headless: headless,
     args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
   
+  // Create a new context and page
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 800 }
+  });
+  const page = await context.newPage();
+  
   try {
-    const page = await browser.newPage();
-    
-    // Set screen size
-    await page.setViewport({ width: 1280, height: 800 });
-
     // Step 1: Navigate to Home
     console.log(`${C_CYAN}🌐 Navigating to catalog page...${C_RESET}`);
-    await page.goto(BASE_URL, { waitUntil: 'networkidle0' });
+    await page.goto(BASE_URL, { waitUntil: 'load' });
 
     // Step 2: Randomly select between 1 and 3 distinct products
     const numProducts = Math.floor(Math.random() * 3) + 1; // 1 to 3
@@ -103,30 +63,18 @@ async function runSimulation(iteration, total) {
       // Ensure we are back on the homepage to click the adopt button
       const currentUrl = page.url();
       if (currentUrl !== BASE_URL && currentUrl !== `${BASE_URL}/`) {
-        await page.goto(BASE_URL, { waitUntil: 'networkidle0' });
+        await page.goto(BASE_URL, { waitUntil: 'load' });
       }
 
-      // Find the specific form and click the submit button
-      const clicked = await page.evaluate((prodId) => {
-        const input = document.querySelector(`form[action="/cart/add"] input[value="${prodId}"]`);
-        if (input) {
-          const form = input.closest('form');
-          const btn = form.querySelector('button[type="submit"]');
-          if (btn) {
-            btn.click();
-            return true;
-          }
-        }
-        return false;
-      }, productId);
-
-      if (!clicked) {
+      // Find the specific form button and click it
+      const formButton = page.locator(`form[action="/cart/add"]:has(input[value="${productId}"]) button[type="submit"]`);
+      
+      try {
+        await formButton.click();
+      } catch (err) {
         console.log(`${C_RED}❌ Error: Could not find "Adopt Me" button for ${productId}!${C_RESET}`);
         continue;
       }
-
-      // Wait for navigation
-      await page.waitForNavigation({ waitUntil: 'networkidle0' }).catch(() => {});
 
       // Check if we hit the "Oops" error page
       const isErrorPage = await page.evaluate(() => {
@@ -137,12 +85,7 @@ async function runSimulation(iteration, total) {
         console.log(`${C_RED}⚠️ HIT SERVER ERROR: ${productId} could not be adopted.${C_RESET}`);
         console.log(`${C_YELLOW}🔄 Clicking "Back to Puppy Catalog" button to proceed...${C_RESET}`);
         
-        await page.evaluate(() => {
-          const btn = document.querySelector('a.btn-primary-custom');
-          if (btn) btn.click();
-        });
-        
-        await page.waitForNavigation({ waitUntil: 'networkidle0' }).catch(() => {});
+        await page.locator('a.btn-primary-custom').click();
         continue;
       }
 
@@ -152,68 +95,41 @@ async function runSimulation(iteration, total) {
       if (targetQty > 1) {
         // Go to cart page if we aren't there already
         if (!page.url().endsWith('/cart')) {
-          await page.goto(`${BASE_URL}/cart`, { waitUntil: 'networkidle0' });
+          await page.goto(`${BASE_URL}/cart`, { waitUntil: 'load' });
         }
 
         for (let q = 1; q < targetQty; q++) {
           console.log(`   ➕ Increasing quantity of ${productId} (${q + 1}/${targetQty})...`);
           
-          await page.evaluate((prodId) => {
-            const inputs = Array.from(document.querySelectorAll('form[action="/cart/update"] input[name="productId"]'));
-            const input = inputs.find(i => {
-              if (i.value !== prodId) return false;
-              const actionInput = i.closest('form').querySelector('input[name="action"]');
-              return actionInput && actionInput.value === 'increase';
-            });
-            if (input) {
-              const form = input.closest('form');
-              const btn = form.querySelector('button.qty-btn');
-              if (btn) btn.click();
-            }
-          }, productId);
-
-          await page.waitForNavigation({ waitUntil: 'networkidle0' }).catch(() => {});
+          // Click increase button inside the specific product's increase quantity form
+          const increaseBtn = page.locator(`form[action="/cart/update"]:has(input[name="productId"][value="${productId}"]):has(input[name="action"][value="increase"]) button.qty-btn`);
+          await increaseBtn.click();
         }
       }
     }
 
     // Step 4: Ensure cart is not empty before proceeding
-    // Navigate to /cart to verify
     if (!page.url().endsWith('/cart')) {
-      await page.goto(`${BASE_URL}/cart`, { waitUntil: 'networkidle0' });
+      await page.goto(`${BASE_URL}/cart`, { waitUntil: 'load' });
     }
 
-    const isCartEmpty = await page.evaluate(() => {
-      return document.body.innerText.includes('Your cart is empty') || !document.querySelector('a[href="/checkout"]');
-    });
+    const cartText = await page.innerText('body');
+    const isCartEmpty = cartText.includes('Your cart is empty') || !(await page.locator('a[href="/checkout"]').isVisible().catch(() => false));
 
     if (isCartEmpty) {
       console.log(`\n${C_YELLOW}⚠️ Cart is empty (likely because only Barnaby was chosen). Adding "cooper" as fallback...${C_RESET}`);
-      await page.goto(BASE_URL, { waitUntil: 'networkidle0' });
-      await page.evaluate(() => {
-        const input = document.querySelector('form[action="/cart/add"] input[value="cooper"]');
-        if (input) {
-          const form = input.closest('form');
-          const btn = form.querySelector('button[type="submit"]');
-          if (btn) btn.click();
-        }
-      });
-      await page.waitForNavigation({ waitUntil: 'networkidle0' }).catch(() => {});
+      await page.goto(BASE_URL, { waitUntil: 'load' });
+      await page.locator('form[action="/cart/add"]:has(input[value="cooper"]) button[type="submit"]').click();
       console.log(`${C_GREEN}✅ Fallback "cooper" successfully added to cart.${C_RESET}`);
     }
 
     // Step 5: Proceed to Checkout
     console.log(`\n${C_CYAN}💳 Proceeding to checkout...${C_RESET}`);
-    await page.goto(`${BASE_URL}/checkout`, { waitUntil: 'networkidle0' });
+    await page.goto(`${BASE_URL}/checkout`, { waitUntil: 'load' });
 
     // Step 6: Click complete secure adoption button
     console.log(`${C_CYAN}✍️ Submitting prefilled secure adoption form...${C_RESET}`);
-    await page.evaluate(() => {
-      const btn = document.querySelector('button.checkout-btn[type="submit"]');
-      if (btn) btn.click();
-    });
-
-    await page.waitForNavigation({ waitUntil: 'networkidle0' }).catch(() => {});
+    await page.locator('button.checkout-btn[type="submit"]').click();
 
     // Step 7: Verify success and output confirmation details
     const currentUrl = page.url();
@@ -222,12 +138,10 @@ async function runSimulation(iteration, total) {
         const badge = document.querySelector('.order-id-badge');
         const orderId = badge ? badge.innerText.replace('Order ID:', '').trim() : 'Unknown';
         
-        // Find Amount Paid
         const rows = Array.from(document.querySelectorAll('.success-row'));
         const amountRow = rows.find(r => r.innerText.includes('Amount Paid'));
         const amount = amountRow ? amountRow.querySelector('span').innerText.trim() : 'Unknown';
 
-        // Find Companions Adopted
         const companionsRow = rows.find(r => r.innerText.includes('Companions Adopted'));
         const companions = companionsRow ? companionsRow.querySelector('span').innerText.trim() : 'Unknown';
 
@@ -254,29 +168,52 @@ async function runSimulation(iteration, total) {
 
 // Main execution block
 (async () => {
-  // Parse iteration count
+  // Parse command line arguments
   let iterations = 3;
+  let headless = true;
   const args = process.argv.slice(2);
   for (const arg of args) {
     if (arg.startsWith('--iterations=')) {
       iterations = parseInt(arg.split('=')[1], 10);
     } else if (!arg.startsWith('-') && !isNaN(arg)) {
       iterations = parseInt(arg, 10);
+    } else if (arg === '--headed') {
+      headless = false;
     }
   }
 
   console.log(`${C_MAGENTA}${C_BRIGHT}====================================================${C_RESET}`);
   console.log(`${C_MAGENTA}${C_BRIGHT}🌟 Cozy Clay Canines Purchase Simulator Initializing 🌟${C_RESET}`);
   console.log(`${C_MAGENTA}${C_BRIGHT}====================================================${C_RESET}`);
-  console.log(`Target loops to run: ${C_BRIGHT}${iterations}${C_RESET}\n`);
+  console.log(`Target loops to run: ${C_BRIGHT}${iterations}${C_RESET}`);
+  console.log(`Browser execution:   ${C_BRIGHT}${headless ? 'headless' : 'headed (visible)'}${C_RESET}\n`);
 
-  let spunUp = false;
+  const rl = readline.createInterface({ input, output });
+  let userUrl = await rl.question(`Enter the server URL to use [http://localhost:8080]: `);
+  rl.close();
+
+  userUrl = userUrl.trim();
+  if (userUrl) {
+    BASE_URL = userUrl;
+  }
+  // Trim trailing slash if present
+  if (BASE_URL.endsWith('/')) {
+    BASE_URL = BASE_URL.slice(0, -1);
+  }
+
+  console.log(`\n🔍 Verifying server is running at ${C_BRIGHT}${BASE_URL}${C_RESET}...`);
+  const isRunning = await checkServerRunning(BASE_URL);
+  if (!isRunning) {
+    console.error(`\n${C_RED}💥 Error: The server at ${BASE_URL} is not running or accessible.${C_RESET}`);
+    console.error(`${C_RED}Please make sure the server is active before running the simulation.${C_RESET}\n`);
+    process.exit(1);
+  }
+  console.log(`${C_GREEN}✅ Server is active!${C_RESET}\n`);
+
   try {
-    spunUp = await ensureServer();
-    
     let successfulRuns = 0;
     for (let i = 1; i <= iterations; i++) {
-      const ok = await runSimulation(i, iterations);
+      const ok = await runSimulation(i, iterations, headless);
       if (ok) successfulRuns++;
     }
 
@@ -292,7 +229,6 @@ async function runSimulation(iteration, total) {
 
   } catch (error) {
     console.error(`${C_RED}💥 Fatal simulation setup error:`, error, C_RESET);
-  } finally {
-    cleanupServer(spunUp);
+    process.exit(1);
   }
 })();

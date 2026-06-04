@@ -17,6 +17,6 @@
     "express-session": "^1.18.0"
   },
   "devDependencies": {
-    "puppeteer": "^25.1.0"
+    "playwright-chromium": "^1.60.0"
   }
 }

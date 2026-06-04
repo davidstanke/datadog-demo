@@ -11,6 +11,7 @@
     "simulate": "node scripts/simulate-traffic.js"
   },
   "dependencies": {
+    "@datadog/browser-logs": "^7.2.0",
     "@datadog/browser-rum": "^7.2.0",
     "@datadog/browser-rum-react": "^7.2.0",
     "lucide-react": "^1.17.0",

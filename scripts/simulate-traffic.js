@@ -170,7 +170,7 @@ async function runIteration(iterationIndex, targetUrl, headed) {
 
     // 4. Proceed to Checkout
     console.log('🛒 Opening checkout portal...');
-    const checkoutBtn = page.locator('.checkout-btn');
+    const checkoutBtn = page.locator('.cart-drawer .checkout-btn');
     await checkoutBtn.waitFor({ state: 'visible' });
     await checkoutBtn.click();
     await randomDelay(1000, 1500);

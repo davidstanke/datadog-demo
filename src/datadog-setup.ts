@@ -1,5 +1,6 @@
 import { datadogRum } from '@datadog/browser-rum';
 import { reactPlugin } from '@datadog/browser-rum-react';
+import { datadogLogs } from '@datadog/browser-logs';
 
 const appId = import.meta.env.VITE_DATADOG_APPLICATION_ID;
 const clientToken = import.meta.env.VITE_DATADOG_CLIENT_TOKEN;
@@ -15,6 +16,7 @@ const hasValidCredentials =
   !appId.includes('mock');
 
 if (hasValidCredentials) {
+  // Initialize RUM
   datadogRum.init({
     applicationId: appId,
     clientToken: clientToken,
@@ -32,10 +34,21 @@ if (hasValidCredentials) {
   
   // Start Session Replay recording
   datadogRum.startSessionReplayRecording();
+
+  // Initialize Logs (Agentless streaming from browser)
+  datadogLogs.init({
+    clientToken: clientToken,
+    site: site,
+    service: service,
+    env: envName,
+    sessionSampleRate: 100,
+    forwardErrorsToLogs: true,
+    forwardConsoleLogs: ['log', 'info', 'warn', 'error'],
+  });
 } else {
   console.warn(
-    'Datadog RUM: Running in mock/local mode. Set valid credentials in .env to enable real tracking.'
+    'Datadog RUM & Logs: Running in mock/local mode. Set valid credentials in .env to enable real tracking.'
   );
 }
 
-export { datadogRum };
+export { datadogRum, datadogLogs };

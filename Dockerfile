@@ -13,7 +13,7 @@ CMD ["npm", "run", "dev"]
 # --- Stage 3: Production / Cloud Run (With Datadog) ---
 FROM base AS production
 ENV NODE_ENV=production
-ENV NODE_OPTIONS="--import dd-trace/register.js"
+ENV NODE_OPTIONS="--import dd-trace/initialize.mjs"
 # Pull the Datadog serverless-init binary
 COPY --from=datadog/serverless-init:1-alpine /datadog-init /app/datadog-init
 ENTRYPOINT ["/app/datadog-init"]

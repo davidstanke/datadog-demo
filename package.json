@@ -6,11 +6,15 @@
   "type": "module",
   "scripts": {
     "start": "node app.js",
-    "dev": "node app.js"
+    "dev": "node app.js",
+    "simulate": "node simulate.js"
   },
   "dependencies": {
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-session": "^1.18.0"
+  },
+  "devDependencies": {
+    "puppeteer": "^25.1.0"
   }
 }

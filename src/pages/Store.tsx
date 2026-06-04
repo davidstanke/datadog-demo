@@ -55,7 +55,10 @@ export default function Store({ cart, onAddToCart, favorites, onToggleFavorite }
               <button
                 key={cat}
                 className={`filter-btn ${activeFilter === cat ? 'active' : ''}`}
-                onClick={() => setActiveFilter(cat)}
+                onClick={() => {
+                  setActiveFilter(cat);
+                  console.info(`[Shop Event] Filter Changed | Category: ${cat}`);
+                }}
               >
                 {cat.charAt(0).toUpperCase() + cat.slice(1)}
               </button>

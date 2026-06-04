@@ -13,17 +13,17 @@ if (!container) {
 const root = createRoot(container, {
   onUncaughtError: (error, errorInfo) => {
     // Report uncaught rendering errors to Datadog
-    addReactError(error as any, errorInfo);
+    addReactError(error as Error, errorInfo);
     console.error('Uncaught error:', error, errorInfo);
   },
   onCaughtError: (error, errorInfo) => {
     // Report caught errors to Datadog (caught by ErrorBoundaries)
-    addReactError(error as any, errorInfo);
+    addReactError(error as Error, errorInfo);
     console.error('Caught error:', error, errorInfo);
   },
   onRecoverableError: (error, errorInfo) => {
     // Report recoverable hydration/rendering errors to Datadog
-    addReactError(error as any, errorInfo);
+    addReactError(error as Error, errorInfo);
     console.warn('Recoverable error:', error, errorInfo);
   }
 });

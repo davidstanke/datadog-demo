@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { RouterProvider, useOutletContext, Outlet } from 'react-router-dom';
 import { createBrowserRouter } from '@datadog/browser-rum-react/react-router-v6';
 import { ErrorBoundary } from '@datadog/browser-rum-react';
@@ -26,11 +26,20 @@ interface CartItem {
   quantity: number;
 }
 
+// Record initial script/app load time outside component render scope to preserve purity
+const appLoadTime = typeof window !== 'undefined' ? performance.now() : 0;
+
 export function AppLayout() {
   // --- States ---
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [favorites, setFavorites] = useState<string[]>([]);
+  
+  // --- Timing Refs ---
+  const pageLoadTime = useRef<number>(appLoadTime);
+  const hasAddedToCart = useRef<boolean>(false);
+  const checkoutStartTime = useRef<number>(0);
+  const paymentStartTime = useRef<number>(0);
   
   // Checkout modal state
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
@@ -52,48 +61,81 @@ export function AppLayout() {
 
   // --- Cart Actions ---
   const addToCart = (product: Product) => {
-    setCart((prevCart) => {
-      const existingItem = prevCart.find(item => item.product.id === product.id);
-      if (existingItem) {
-        return prevCart.map(item => 
-          item.product.id === product.id 
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prevCart, { product, quantity: 1 }];
-    });
+    let updatedCart: CartItem[];
+    const existingItem = cart.find(item => item.product.id === product.id);
+    if (existingItem) {
+      updatedCart = cart.map(item => 
+        item.product.id === product.id 
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      );
+    } else {
+      updatedCart = [...cart, { product, quantity: 1 }];
+    }
+    setCart(updatedCart);
+
+    // Calculate totals for logging
+    const totalItems = updatedCart.reduce((sum, item) => sum + item.quantity, 0);
+    const subtotal = updatedCart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+    const updatedItem = updatedCart.find(item => item.product.id === product.id);
+    
+    console.info(`[Shop Event] Add To Cart | Product: ${product.name} (ID: ${product.id}) | Price: $${product.price.toFixed(2)} | Updated Qty: ${updatedItem?.quantity || 1} | Cart Total Items: ${totalItems} | Subtotal: $${subtotal.toFixed(2)}`);
+
+    if (!hasAddedToCart.current) {
+      const durationSec = ((performance.now() - pageLoadTime.current) / 1000).toFixed(2);
+      console.info(`[Shop Event] First Add To Cart | Product: ${product.name} (ID: ${product.id}) | Duration Since Load: ${durationSec}s`);
+      hasAddedToCart.current = true;
+    }
+
     // Open drawer on add for immediate tactile feedback
     setIsCartOpen(true);
   };
 
   const updateQuantity = (productId: string, delta: number) => {
-    setCart((prevCart) => {
-      return prevCart.map(item => {
-        if (item.product.id === productId) {
-          const newQty = item.quantity + delta;
-          return newQty > 0 ? { ...item, quantity: newQty } : item;
-        }
-        return item;
-      }).filter(item => item.quantity > 0);
-    });
+    const updatedCart = cart.map(item => {
+      if (item.product.id === productId) {
+        const newQty = item.quantity + delta;
+        return newQty > 0 ? { ...item, quantity: newQty } : item;
+      }
+      return item;
+    }).filter(item => item.quantity > 0);
+
+    setCart(updatedCart);
+
+    const item = cart.find(i => i.product.id === productId);
+    const updatedItem = updatedCart.find(i => i.product.id === productId);
+    const productName = item?.product.name || 'Unknown';
+    const subtotal = updatedCart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+
+    console.info(`[Shop Event] Update Quantity | Product: ${productName} (ID: ${productId}) | Delta: ${delta > 0 ? '+' : ''}${delta} | New Quantity: ${updatedItem?.quantity || 0} | New Subtotal: $${subtotal.toFixed(2)}`);
   };
 
   const removeFromCart = (productId: string) => {
-    setCart((prevCart) => prevCart.filter(item => item.product.id !== productId));
+    const item = cart.find(i => i.product.id === productId);
+    const productName = item?.product.name || 'Unknown';
+
+    const updatedCart = cart.filter(item => item.product.id !== productId);
+    setCart(updatedCart);
+
+    const subtotal = updatedCart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+    console.info(`[Shop Event] Remove From Cart | Product: ${productName} (ID: ${productId}) | Subtotal: $${subtotal.toFixed(2)}`);
   };
 
   const clearCart = () => {
+    const itemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
     setCart([]);
+    console.info(`[Shop Event] Clear Cart | Cart Items Count: ${itemsCount}`);
   };
 
   // --- Favorites Toggle ---
   const toggleFavorite = (productId: string) => {
+    const isAdding = !favorites.includes(productId);
     setFavorites(prev => 
       prev.includes(productId) 
         ? prev.filter(id => id !== productId)
         : [...prev, productId]
     );
+    console.info(`[Shop Event] Favorite Toggled | Product ID: ${productId} | Action: ${isAdding ? 'Added' : 'Removed'}`);
   };
 
   // --- Calculated Values ---
@@ -131,22 +173,39 @@ export function AppLayout() {
     setIsCartOpen(false); // Close cart drawer
     setPaymentStep('form');
     setIsCheckoutOpen(true);
+
+    // eslint-disable-next-line react-hooks/purity
+    checkoutStartTime.current = performance.now();
+    console.info(`[Shop Event] Checkout Started | Items Count: ${cartTotalItems} | Subtotal: $${cartSubtotal.toFixed(2)} | Grand Total: $${grandTotal.toFixed(2)}`);
   };
 
   const handlePaymentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPaymentStep('processing');
+    paymentStartTime.current = performance.now();
+
+    console.info(`[Shop Event] Payment Submitted | Customer: ${formName} | Email: ${formEmail} | Shipping Address: ${formAddress}, ${formCity}, ${formZip}`);
     
     // Simulate a secure, detailed cloud payment gateway validation and charge
     setTimeout(() => {
       const randomId = 'CF-' + Math.floor(100000 + Math.random() * 900000);
       setOrderId(randomId);
       setPaymentStep('success');
+
+      const checkoutDuration = ((performance.now() - checkoutStartTime.current) / 1000).toFixed(2);
+      const processingDuration = ((performance.now() - paymentStartTime.current) / 1000).toFixed(2);
+
+      console.info(`[Shop Event] Payment Successful | Order ID: ${randomId} | Total Paid: $${grandTotal.toFixed(2)} | Checkout Duration: ${checkoutDuration}s | Payment Processing Duration: ${processingDuration}s`);
+
       clearCart();
     }, 2500);
   };
 
   const handleCloseCheckout = () => {
+    if (paymentStep !== 'success') {
+      const timeSpent = ((performance.now() - checkoutStartTime.current) / 1000).toFixed(2);
+      console.info(`[Shop Event] Checkout Cancelled | Time Spent: ${timeSpent}s | Items Count: ${cartTotalItems}`);
+    }
     setIsCheckoutOpen(false);
     setPaymentStep('form');
   };
@@ -531,7 +590,7 @@ function StoreRoute() {
 }
 
 // Cute clay-themed Error Fallback Component
-function ErrorFallback({ resetError, error }: { resetError: () => void; error: any }) {
+function ErrorFallback({ resetError, error }: { resetError: () => void; error: Error }) {
   return (
     <div style={{
       display: 'flex',

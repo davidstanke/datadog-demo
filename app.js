@@ -174,10 +174,10 @@ app.post('/cart/add', (req, res) => {
     return res.status(400).send('Invalid product');
   }
 
-  // Deliberate exception for Barnaby the Pug
-  // if (productId === 'barnaby') {
-  //   throw new Error(`Adoption failed: Deliberate server-side exception triggered while attempting to adopt ${product.name}!`);
-  // }
+  // Special handling for Barnaby the Pug
+  if (productId === 'barnaby') {
+    throw new Error(`ERROR: ${product.name} cannot be purchased at this time!`);
+  }
 
   
   const cart = getCart(req);

@@ -8,9 +8,10 @@
     "start": "node app.js",
     "dev": "node app.js",
     "simulate": "node simulate.js",
-    "container": "docker build -t cozy-clay-canines . && docker run --rm -it -p 8080:8080 -e PORT=8080 cozy-clay-canines"
+    "container": "docker kill $(docker ps -q --filter publish=8080) 2>/dev/null || true && docker build -t cozy-clay-canines . && docker run --rm -it -p 8080:8080 --env-file .env cozy-clay-canines"
   },
   "dependencies": {
+    "dd-trace": "^5.106.0",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-session": "^1.18.0"

@@ -1,29 +1,20 @@
-# Use the official lightweight Node.js 20 Alpine image
-FROM node:20-alpine
-
-# Set node environment to production
-ENV NODE_ENV=production
-
-# Create and define the application working directory
-WORKDIR /usr/src/app
-
-# Copy dependency manifests first to leverage Docker layer caching
+# --- Stage 1: Base image with dependencies ---
+FROM node:20-alpine AS base
+WORKDIR /app
 COPY package*.json ./
+RUN npm install
+COPY . .
 
-# Install production-only dependencies (ignores devDependencies like puppeteer)
-RUN npm ci --only=production
+# --- Stage 2: Development (No Datadog, fast reloads) ---
+FROM base AS development
+ENV NODE_ENV=development
+CMD ["npm", "run", "dev"]
 
-# Copy application source files
-COPY app.js ./
-COPY public/ ./public/
-COPY views/ ./views/
-
-# Use non-root system user provided by the base image for runtime security
-USER node
-
-# Document the default port. Cloud Run automatically injects its own PORT
-# environment variable, and the app's app.js dynamically listens to process.env.PORT.
-EXPOSE 5173
-
-# Start the server
-CMD [ "node", "app.js" ]
+# --- Stage 3: Production / Cloud Run (With Datadog) ---
+FROM base AS production
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--import dd-trace/register.js"
+# Pull the Datadog serverless-init binary
+COPY --from=datadog/serverless-init:1-alpine /datadog-init /app/datadog-init
+ENTRYPOINT ["/app/datadog-init"]
+CMD ["node", "app.js"]

@@ -1,3 +1,4 @@
+import tracer from 'dd-trace';
 import express from 'express';
 import session from 'express-session';
 import path from 'path';
@@ -308,6 +309,13 @@ app.get('/success', (req, res) => {
 // Global Error Handling Middleware
 app.use((err, req, res, next) => {
   console.error('[Cozy Clay Canines Error Log]:', err.stack || err);
+  
+  // Tag active span with the error details for Datadog Error Tracking
+  const activeSpan = tracer.scope().active();
+  if (activeSpan) {
+    activeSpan.setTag('error', err);
+  }
+
   res.status(500).render('error', { 
     message: 'Oops! Something went wrong. Try again later!' 
   });

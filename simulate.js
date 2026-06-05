@@ -4,6 +4,7 @@ import { stdin as input, stdout as output } from 'process';
 
 let BASE_URL = 'http://localhost:8080';
 const ALL_PRODUCTS = ['cooper', 'hachi', 'bella', 'pierre', 'dash', 'barnaby'];
+let activeBrowser = null;
 
 // ANSI escape codes for beautiful styling
 const C_RESET = '\x1b[0m';
@@ -36,6 +37,7 @@ async function runSimulation(iteration, total, headless) {
     headless: headless,
     args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
+  activeBrowser = browser;
   
   // Create a new context and page
   const context = await browser.newContext({
@@ -162,6 +164,7 @@ async function runSimulation(iteration, total, headless) {
     console.error(`${C_RED}💥 Exception occurred during iteration ${iteration}:`, error, C_RESET);
     return false;
   } finally {
+    activeBrowser = null;
     await browser.close();
   }
 }
@@ -175,17 +178,32 @@ async function runSimulation(iteration, total, headless) {
   let headless = true;
   let minDelay = 0;
   let maxDelay = 0;
+  let isInfinite = false;
 
   const args = process.argv.slice(2);
   for (const arg of args) {
     if (arg.startsWith('--iterations=')) {
-      iterations = parseInt(arg.split('=')[1], 10);
+      const val = arg.split('=')[1];
+      if (val === 'infinite' || val === '-1') {
+        isInfinite = true;
+        iterations = Infinity;
+      } else {
+        iterations = parseInt(val, 10);
+      }
     } else if (arg.startsWith('--min-delay=')) {
       minDelay = parseInt(arg.split('=')[1], 10);
     } else if (arg.startsWith('--max-delay=')) {
       maxDelay = parseInt(arg.split('=')[1], 10);
-    } else if (!arg.startsWith('-') && !isNaN(arg)) {
-      iterations = parseInt(arg, 10);
+    } else if (arg === '--infinite') {
+      isInfinite = true;
+      iterations = Infinity;
+    } else if (!arg.startsWith('-')) {
+      if (arg === 'infinite' || arg === '-1') {
+        isInfinite = true;
+        iterations = Infinity;
+      } else if (!isNaN(arg)) {
+        iterations = parseInt(arg, 10);
+      }
     } else if (arg === '--headed') {
       headless = false;
     }
@@ -210,7 +228,7 @@ async function runSimulation(iteration, total, headless) {
   console.log(`${C_MAGENTA}${C_BRIGHT}====================================================${C_RESET}`);
   console.log(`${C_MAGENTA}${C_BRIGHT}🌟 Cozy Clay Canines Purchase Simulator Initializing 🌟${C_RESET}`);
   console.log(`${C_MAGENTA}${C_BRIGHT}====================================================${C_RESET}`);
-  console.log(`Target loops to run: ${C_BRIGHT}${iterations}${C_RESET}`);
+  console.log(`Target loops to run: ${C_BRIGHT}${isInfinite ? 'Infinite (∞)' : iterations}${C_RESET}`);
   console.log(`Browser execution:   ${C_BRIGHT}${headless ? 'headless' : 'headed (visible)'}${C_RESET}`);
   if (minDelay > 0 || maxDelay > 0) {
     if (minDelay === maxDelay) {
@@ -244,21 +262,57 @@ async function runSimulation(iteration, total, headless) {
   }
   console.log(`${C_GREEN}✅ Server is active!${C_RESET}\n`);
 
+  let totalAttempted = 0;
+  let successfulRuns = 0;
+  let isExiting = false;
+
+  process.on('SIGINT', async () => {
+    if (isExiting) return;
+    isExiting = true;
+    console.log(`\n\n${C_YELLOW}🛑 Simulation interrupted by user (Ctrl+C). Exiting gracefully...${C_RESET}`);
+    
+    if (activeBrowser) {
+      console.log(`${C_CYAN}🧹 Closing active browser session...${C_RESET}`);
+      try {
+        await activeBrowser.close();
+      } catch (err) {
+        // Ignore
+      }
+    }
+
+    console.log(`\n${C_MAGENTA}====================================================${C_RESET}`);
+    console.log(`${C_MAGENTA}${C_BRIGHT}📊 SIMULATION INTERRUPTED SUMMARY${C_RESET}`);
+    console.log(`${C_MAGENTA}====================================================${C_RESET}`);
+    console.log(`Total attempted runs: ${C_BRIGHT}${totalAttempted}${C_RESET}`);
+    console.log(`Successful runs:     ${C_BRIGHT}${successfulRuns} / ${totalAttempted}${C_RESET}`);
+    if (totalAttempted > 0) {
+      const rate = ((successfulRuns / totalAttempted) * 100).toFixed(1);
+      console.log(`Success rate:        ${C_BRIGHT}${rate}%${C_RESET}`);
+    }
+    console.log(`${C_MAGENTA}====================================================${C_RESET}\n`);
+    
+    process.exit(0);
+  });
+
   try {
-    let successfulRuns = 0;
-    for (let i = 1; i <= iterations; i++) {
-      const ok = await runSimulation(i, iterations, headless);
+    let i = 1;
+    while (isInfinite || i <= iterations) {
+      totalAttempted = i;
+      const totalDisplay = isInfinite ? '∞' : iterations;
+      const ok = await runSimulation(i, totalDisplay, headless);
       if (ok) successfulRuns++;
 
-      if (i < iterations && maxDelay > 0) {
+      if ((isInfinite || i < iterations) && maxDelay > 0) {
         const delay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
         if (delay > 0) {
           console.log(`\n${C_YELLOW}⏳ Delaying for ${C_BRIGHT}${delay}ms${C_RESET}${C_YELLOW} before starting next iteration...${C_RESET}`);
           await sleep(delay);
         }
       }
+      i++;
     }
 
+    // Only reached if iterations is finite and loops complete naturally
     console.log(`\n${C_MAGENTA}====================================================${C_RESET}`);
     console.log(`${C_MAGENTA}${C_BRIGHT}📊 SIMULATION COMPLETE SUMMARY${C_RESET}`);
     console.log(`${C_MAGENTA}====================================================${C_RESET}`);

@@ -62,12 +62,23 @@ npm run simulate
 ```
 
 ### 3. Optional Parameters
-- **Set Loop Count:** Control how many full purchase flows to run (defaults to `3`):
-  ```bash
-  npm run simulate -- 5
-  # Or explicitly:
-  npm run simulate -- --iterations=5
-  ```
+- **Set Loop Count & Infinite Looping:** Control how many full purchase flows to run (defaults to `3`) or loop infinitely:
+  - **Fixed Iterations:**
+    ```bash
+    npm run simulate -- 5
+    # Or explicitly:
+    npm run simulate -- --iterations=5
+    ```
+  - **Infinite Looping:** Loop forever until manually stopped. Interrupting with `Ctrl+C` will close browser sessions and print a beautiful performance summary:
+    ```bash
+    npm run simulate -- --infinite
+    # Or explicitly:
+    npm run simulate -- --iterations=infinite
+    # Or simply:
+    npm run simulate -- infinite
+    # Or setting iterations to -1:
+    npm run simulate -- -1
+    ```
 - **Set Loop Delays:** Introduce a delay between simulation loops in milliseconds (defaults to `0`):
   - **Fixed Delay:** Specify the same value for both min and max delay (or just provide one of them):
     ```bash

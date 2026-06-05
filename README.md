@@ -68,6 +68,15 @@ npm run simulate
   # Or explicitly:
   npm run simulate -- --iterations=5
   ```
+- **Set Loop Delays:** Introduce a delay between simulation loops in milliseconds (defaults to `0`):
+  - **Fixed Delay:** Specify the same value for both min and max delay (or just provide one of them):
+    ```bash
+    npm run simulate -- --min-delay=2000
+    ```
+  - **Random Range Delay:** Pick a random delay within a range:
+    ```bash
+    npm run simulate -- --min-delay=1000 --max-delay=5000
+    ```
 - **Headed (Visible) Mode:** If you are running locally and want to watch the browser execute the actions in a visible window:
   ```bash
   npm run simulate -- --headed

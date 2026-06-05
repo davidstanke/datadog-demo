@@ -168,13 +168,22 @@ async function runSimulation(iteration, total, headless) {
 
 // Main execution block
 (async () => {
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
   // Parse command line arguments
   let iterations = 3;
   let headless = true;
+  let minDelay = 0;
+  let maxDelay = 0;
+
   const args = process.argv.slice(2);
   for (const arg of args) {
     if (arg.startsWith('--iterations=')) {
       iterations = parseInt(arg.split('=')[1], 10);
+    } else if (arg.startsWith('--min-delay=')) {
+      minDelay = parseInt(arg.split('=')[1], 10);
+    } else if (arg.startsWith('--max-delay=')) {
+      maxDelay = parseInt(arg.split('=')[1], 10);
     } else if (!arg.startsWith('-') && !isNaN(arg)) {
       iterations = parseInt(arg, 10);
     } else if (arg === '--headed') {
@@ -182,11 +191,36 @@ async function runSimulation(iteration, total, headless) {
     }
   }
 
+  // Normalize delays: default to 0, handle single-flag inputs as fixed delay
+  if (isNaN(minDelay) || minDelay < 0) minDelay = 0;
+  if (isNaN(maxDelay) || maxDelay < 0) maxDelay = 0;
+
+  if (minDelay > 0 && maxDelay === 0) {
+    maxDelay = minDelay;
+  } else if (maxDelay > 0 && minDelay === 0) {
+    minDelay = maxDelay;
+  }
+
+  if (minDelay > maxDelay) {
+    const temp = minDelay;
+    minDelay = maxDelay;
+    maxDelay = temp;
+  }
+
   console.log(`${C_MAGENTA}${C_BRIGHT}====================================================${C_RESET}`);
   console.log(`${C_MAGENTA}${C_BRIGHT}🌟 Cozy Clay Canines Purchase Simulator Initializing 🌟${C_RESET}`);
   console.log(`${C_MAGENTA}${C_BRIGHT}====================================================${C_RESET}`);
   console.log(`Target loops to run: ${C_BRIGHT}${iterations}${C_RESET}`);
-  console.log(`Browser execution:   ${C_BRIGHT}${headless ? 'headless' : 'headed (visible)'}${C_RESET}\n`);
+  console.log(`Browser execution:   ${C_BRIGHT}${headless ? 'headless' : 'headed (visible)'}${C_RESET}`);
+  if (minDelay > 0 || maxDelay > 0) {
+    if (minDelay === maxDelay) {
+      console.log(`Delay between loops: ${C_BRIGHT}${minDelay}ms (fixed)${C_RESET}\n`);
+    } else {
+      console.log(`Delay between loops: ${C_BRIGHT}${minDelay}ms - ${maxDelay}ms (random)${C_RESET}\n`);
+    }
+  } else {
+    console.log(`Delay between loops: ${C_BRIGHT}None (0ms)${C_RESET}\n`);
+  }
 
   const rl = readline.createInterface({ input, output });
   let userUrl = await rl.question(`Enter the server URL to use [http://localhost:8080]: `);
@@ -215,6 +249,14 @@ async function runSimulation(iteration, total, headless) {
     for (let i = 1; i <= iterations; i++) {
       const ok = await runSimulation(i, iterations, headless);
       if (ok) successfulRuns++;
+
+      if (i < iterations && maxDelay > 0) {
+        const delay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+        if (delay > 0) {
+          console.log(`\n${C_YELLOW}⏳ Delaying for ${C_BRIGHT}${delay}ms${C_RESET}${C_YELLOW} before starting next iteration...${C_RESET}`);
+          await sleep(delay);
+        }
+      }
     }
 
     console.log(`\n${C_MAGENTA}====================================================${C_RESET}`);

@@ -51,7 +51,7 @@ async function runSimulation(iteration, total, headless) {
     await page.goto(BASE_URL, { waitUntil: 'load' });
 
     // Step 2: Randomly select between 1 and 3 distinct products
-    const numProducts = Math.floor(Math.random() * 3) + 1; // 1 to 3
+    const numProducts = Math.floor(Math.random() * 3) + 3; // 3 to 5
     const shuffled = [...ALL_PRODUCTS].sort(() => 0.5 - Math.random());
     const selectedProducts = shuffled.slice(0, numProducts);
     
